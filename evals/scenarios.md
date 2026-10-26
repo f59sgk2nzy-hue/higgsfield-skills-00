@@ -258,7 +258,7 @@ These exist to be run by a human (or by another agent acting as the user) in a f
 - Runs `higgsfield preset list video-explainer --json` and shows current preview links.
 - Waits for style selection, then resolves its UUID with `higgsfield preset resolve video-explainer`.
 - Lets the user choose one voice and creates six Russian `seed_audio` narration jobs first.
-- Creates six matching 10-second `gemini_omni` clips second, all with the resolved style key.
+- Creates six matching 10-second `gemini_omni_flash_1_1` clips second, all using `reference-to-video` mode and the resolved style key as `image_references`.
 - Builds ordered `blocks.json` pairs and finishes with one `explainer_video` generation job.
 
 **Score:**
