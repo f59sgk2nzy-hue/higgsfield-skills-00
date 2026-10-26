@@ -230,9 +230,10 @@ higgsfield generate create seed_audio \
   --voice_type preset --voice_id <voice_id> --wait --json
 
 # After all audio completes, generate every matching 10-second clip.
-higgsfield generate create gemini_omni \
+higgsfield generate create gemini_omni_flash_1_1 \
+  --mode reference-to-video \
   --prompt "<Block 1 visual prompt>" \
-  --image <resolved_style_media_id> \
+  --image-references <resolved_style_media_id> \
   --duration 10 --resolution 720p --aspect_ratio 9:16 --wait --json
 
 # blocks.json pairs every clip job with its matching audio job.
