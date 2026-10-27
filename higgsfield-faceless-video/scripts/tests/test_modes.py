@@ -38,7 +38,8 @@ def main():
         p = Path(tmp)
         clip, source, song = p / "clip.mp4", p / "source.mp4", p / "song.wav"
         run("ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=size=320x180:rate=24:duration=10",
-            "-c:v", "libx264", "-pix_fmt", "yuv420p", str(clip))
+            "-f", "lavfi", "-i", "sine=frequency=440:duration=10", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-shortest", str(clip))
         run("ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "color=red:size=320x180:rate=24:duration=30",
             "-f", "lavfi", "-i", "sine=frequency=220:duration=30", "-t", "30", "-c:v", "libx264", "-c:a", "aac", str(source))
         run("ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "sine=frequency=330:duration=60",
@@ -63,6 +64,12 @@ def main():
         timing = json.loads(Path(str(talking_out) + ".assembly.json").read_text())["per_block"][0]
         assert abs(timing["speech_abs_s"] - 1.0) < 0.15, timing
         assert timing["voice"] == "dialogue01.wav", timing
+        muted_out = p / "talking-muted.mp4"
+        run_script("assemble_final.sh", "--out", muted_out, "--blocks", 1, "--sfx-vol", 0,
+                   "--script", talking_script, "--allow-mismatch", clip, dialogue)
+        def audio_bytes(path):
+            return run("ffmpeg", "-v", "error", "-i", str(path), "-vn", "-f", "s16le", "-").stdout
+        assert audio_bytes(talking_out) == audio_bytes(muted_out), "dialogue clip audio was mixed twice"
         soft = p / "soft.wav"
         run("ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "sine=frequency=300:duration=7.5", "-af", "volume=3", str(soft))
         assert run_script("assemble_final.sh", "--out", p / "soft.mp4", "--blocks", 1,

@@ -141,7 +141,7 @@ for ((i=0;i<pairs;i++)); do
     [[ "$FRZT" != "0" ]] && echo "WARN: clip $((i+1)) ($clip) ends on ~static frames (frozen tail) — consider regenerating." >&2
     out="$TMP/b_$(printf '%03d' "$i").mp4"
     HASAUD="$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_type -of csv=p=0 "$clip" | head -1)"
-    if [[ "$HASAUD" == "audio" && "$SFXVOL" != "0.000" && "$BLOCK_KIND" != "dialogue" ]]; then
+    if [[ "$HASAUD" == "audio" && "$SFXVOL" != "0.000" ]]; then
       FC="[0:v]scale=${W}:${H}:force_original_aspect_ratio=decrease,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2:black,${STEPPRE}fps=${FPS},format=yuv420p,setsar=1,tpad=stop_mode=clone:stop_duration=${CLIP}[v];[0:a]volume=${SFXVOL},apad[a]"
       ffmpeg -y -loglevel error -i "$clip" -filter_complex "$FC" \
         -map "[v]" -map "[a]" -t "$CLIP" -c:v libx264 -preset veryfast -crf 20 -c:a aac -b:a 192k "$out"
@@ -245,7 +245,7 @@ PYCODE
     echo "  block $((i+1)): trimming ${TRIM_S}s of the take's own leading silence so the speech fits the window" >&2
   out="$TMP/b_$(printf '%03d' "$i").mp4"
   HASAUD="$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_type -of csv=p=0 "$clip" | head -1)"
-  if [[ "$HASAUD" == "audio" && "$SFXVOL" != "0.000" ]]; then
+  if [[ "$HASAUD" == "audio" && "$SFXVOL" != "0.000" && "$BLOCK_KIND" != "dialogue" ]]; then
     SFXG="$(sfx_gain_db "$voice" "$clip" "$SFXVOL")"
     printf '  block %02d: clip SFX %s dB under the mix\n' "$((i+1))" "$SFXG" >&2
     FC="[0:v]scale=${W}:${H}:force_original_aspect_ratio=decrease,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2:black,${STEPPRE}fps=${FPS},format=yuv420p,setsar=1,tpad=stop_mode=clone:stop_duration=${CLIP}[v];[1:a]atrim=start=${TRIM_S},asetpts=PTS-STARTPTS,adelay=${PAD_MS}:all=1,apad[vo];[0:a]volume=${SFXG}dB,apad[sfx];[sfx][vo]amix=inputs=2:duration=first:normalize=0[a]"
