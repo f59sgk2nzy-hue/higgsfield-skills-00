@@ -213,6 +213,23 @@ Common patterns:
 - **Marketing Studio (video)**: `auto`/`21:9`/`16:9`/`4:3`/`1:1`/`3:4`/`9:16`. Resolution `480p`, `720p`, or `1080p`.
 - **Cinema Studio 4.0**: `auto`/`21:9`/`16:9`/`4:3`/`1:1`/`3:4`/`9:16`. Resolution `480p`, `720p`, or `1080p`. Native audio on by default.
 
+## Command examples
+
+Flags pass through to the model schema; check `higgsfield model get <jst>` before adding params not shown here.
+
+```bash
+higgsfield generate create gpt_image_2_5 --prompt "neon city at dusk" --aspect_ratio 16:9 --resolution 2k --wait
+higgsfield generate create nano_banana_flash --prompt "anime character concept, expressive pose" --image ./ref.png --wait
+higgsfield generate create seedance_2_5 --prompt "camera dollies in" --mode omni_reference --start-image ./first.png --duration 12 --resolution 1080p --wait
+higgsfield generate create grok_video_v15 --prompt "cinematic handheld shot, neon rainy street" --start-image ./image.png --duration 5 --resolution 720p --wait
+higgsfield generate create text2image_soul_v2 --prompt "..." --soul-id <soul_ref_id> --quality 2k --wait
+higgsfield generate create multi_image_to_3d --image ./front.png --image ./side.png --should_texture true --wait
+higgsfield generate create seed_audio --prompt "cinematic rain ambience with distant thunder" --wait
+higgsfield generate create sonilo_music --prompt "cinematic synthwave track" --duration 12 --wait
+higgsfield generate create mirelo_text_to_audio --prompt "glass breaking in a large hall" --duration 4 --wait
+higgsfield generate create brain_activity --video ./ad.mp4 --wait
+```
+
 ## When you submit an unknown value
 
 The CLI reports two kinds of feedback:

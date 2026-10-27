@@ -141,18 +141,7 @@ Each flag accepts either a local file path (auto-uploaded) or a UUID (upload id 
 
 Flags pass through to model schema. Use `higgsfield model get <jst>` to discover.
 
-```bash
-higgsfield generate create gpt_image_2_5 --prompt "neon city at dusk" --aspect_ratio 16:9 --resolution 2k --wait
-higgsfield generate create nano_banana_flash --prompt "anime character concept, expressive pose" --image ./ref.png --wait
-higgsfield generate create seedance_2_5 --prompt "camera dollies in" --mode omni_reference --start-image ./first.png --duration 12 --resolution 1080p --wait
-higgsfield generate create grok_video_v15 --prompt "cinematic handheld shot, neon rainy street" --start-image ./image.png --duration 5 --resolution 720p --wait
-higgsfield generate create text2image_soul_v2 --prompt "..." --soul-id <soul_ref_id> --quality 2k --wait
-higgsfield generate create multi_image_to_3d --image ./front.png --image ./side.png --should_texture true --wait
-higgsfield generate create seed_audio --prompt "cinematic rain ambience with distant thunder" --wait
-higgsfield generate create sonilo_music --prompt "cinematic synthwave track" --duration 12 --wait
-higgsfield generate create mirelo_text_to_audio --prompt "glass breaking in a large hall" --duration 4 --wait
-higgsfield generate create brain_activity --video ./ad.mp4 --wait
-```
+One-line `generate create` examples for each default model: see `references/model-catalog.md` → Command examples.
 
 For machine-readable output (chained pipelines, agent context), add `--json`. With `--wait --json` you get the final job object array. Without `--wait`, you get the job IDs. Virality Predictor stores raw analysis and render artifacts in the job params, but the default text output should stay to scores plus Open report.
 
@@ -241,22 +230,7 @@ higgsfield marketing-studio ad-formats list --json
 
 ### Click-to-Ad shortcut (URL-driven)
 
-When the user gives a product URL and wants a marketing video in one go:
-
-```bash
-# 1. Trigger fetch (returns the product id, import runs in the background)
-higgsfield marketing-studio products fetch --url https://shop.example.com/sneakers --wait
-
-# 2. Generate the marketing video against the same URL — backend reuses the entity
-higgsfield generate create marketing_studio_video \
-  --url https://shop.example.com/sneakers \
-  --mode ugc \
-  --duration 15 \
-  --aspect_ratio 9:16 \
-  --wait
-```
-
-Backend dedupes by URL, so repeated runs reuse the existing entity instead of re-fetching.
+Product URL + "make a video" in one go → pass `--url` straight to `marketing_studio_video`; see `references/marketing-products.md` → Click-to-Ad.
 
 ### Workflow — marketing image
 

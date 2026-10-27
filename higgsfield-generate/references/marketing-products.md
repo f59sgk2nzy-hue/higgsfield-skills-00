@@ -55,3 +55,22 @@ higgsfield marketing-studio products list
 higgsfield marketing-studio products list --json
 higgsfield marketing-studio webproducts list
 ```
+
+## Click-to-Ad
+
+When the user gives a product URL and wants a marketing video in one go:
+
+```bash
+# 1. Trigger fetch (returns the product id, import runs in the background)
+higgsfield marketing-studio products fetch --url https://shop.example.com/sneakers --wait
+
+# 2. Generate the marketing video against the same URL — backend reuses the entity
+higgsfield generate create marketing_studio_video \
+  --url https://shop.example.com/sneakers \
+  --mode ugc \
+  --duration 15 \
+  --aspect_ratio 9:16 \
+  --wait
+```
+
+Backend dedupes by URL, so repeated runs reuse the existing entity instead of re-fetching.
