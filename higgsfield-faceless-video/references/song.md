@@ -12,7 +12,7 @@ Write lyrics in the requested language, using verse and a repeating chorus. Keep
 python3 "$SKILL_DIR/scripts/validate_song_prompt.py" --duration-seconds "$REQUESTED_SECONDS" --prompt song_prompt.txt --lyrics-language "$LANGUAGE_CODE"
 ```
 
-The meter counter supports English and Russian; for another language it reports that manual meter review is required. Check the lyrics in that language before submission. Generate the song first with `higgsfield generate create seed_audio --prompt "$(cat song_prompt.txt)" --wait --json`; omit voice ID and voice type. Check the returned track is within three seconds of the requested length. Retry at most three changed attempts, then stop; do not stretch, concatenate or substitute a different duration.
+The meter counter supports English and Russian; for another language it reports that manual meter review is required. Check the lyrics in that language before submission. Generate the song first with `higgsfield generate create seed_audio --prompt "$(cat song_prompt.txt)" --wait --json`; omit voice ID and voice type. Check the returned track is within three seconds of the requested length. Make at most three generation attempts in total, including the initial request and any failed jobs; after the third failure or wrong-length result, stop. Change the prompt for each retry. Do not stretch, concatenate or substitute a different duration.
 
 Build six or twelve 10-second scene blocks matching the song's lyrics and repeated chorus. Keep visual style and characters consistent, show the named action, and avoid lip-sync. Inspect the first generated clip before submitting the rest. Save the actual completed clips in `clips.txt`, one local path per line in chronological order. Assemble with one song and no extra music bed:
 
@@ -21,4 +21,4 @@ bash "$SKILL_DIR/scripts/assemble_final.sh" --out final.mp4 --blocks "$BLOCKS" \
   --manifest clips.txt --song song.wav
 ```
 
-The script checks block count, song length, audio coverage and decode. Verify the result against the original requested duration and review the video and audio before delivering it. Do not ship a partial result if any gate fails.
+The script checks block count, song length, audio coverage and decode. Review the audio against the planned lyrics, repeating chorus and timing, and review the video against those lyrics before delivering it. Automatic speech recognition may help flag discrepancies but does not reliably verify singing; report any unverified wording or chorus rather than claiming they match. Do not ship a partial result if any gate fails.
