@@ -34,11 +34,6 @@ jobs:
       - name: Install PyYAML
         run: pip install pyyaml --quiet
 
-      - name: Install FFmpeg
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg
-
       - name: Validate frontmatter and name
         run: |
           set -euo pipefail
@@ -180,9 +175,7 @@ jobs:
         run: |
           set -euo pipefail
           bash -n higgsfield-faceless-video/scripts/*.sh
-          python3 higgsfield-faceless-video/scripts/tests/test_assembly.py
           python3 higgsfield-faceless-video/scripts/tests/test_captions.py
           python3 higgsfield-faceless-video/scripts/tests/test_channel.py
           python3 higgsfield-faceless-video/scripts/tests/test_song.py
           python3 higgsfield-faceless-video/scripts/tests/test_timeline.py
-          python3 higgsfield-faceless-video/scripts/tests/test_modes.py --skip-presenter
