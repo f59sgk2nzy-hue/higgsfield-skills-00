@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise picture, song, edit and presenter assembly with local fixtures."""
 import json
+import hashlib
 import shutil
 import subprocess
 import sys
@@ -59,6 +60,10 @@ def main():
         talking_script = p / "talking.json"
         talking_script.write_text(json.dumps({"talking_characters": True, "blocks": [{"block_kind": "dialogue"}]}))
         talking_out = p / "talking.mp4"
+        assert run_script("assemble_final.sh", "--out", talking_out, "--blocks", 1,
+                          "--script", talking_script, "--allow-mismatch", clip, dialogue, check=False).returncode != 0
+        (p / "script.lock").write_text(json.dumps({"narration_sha256": hashlib.sha256(b"").hexdigest(),
+                                                   "block_count": 1, "duration_seconds": 10}))
         run_script("assemble_final.sh", "--out", talking_out, "--blocks", 1,
                    "--script", talking_script, "--allow-mismatch", clip, dialogue)
         timing = json.loads(Path(str(talking_out) + ".assembly.json").read_text())["per_block"][0]
@@ -70,6 +75,7 @@ def main():
         def audio_bytes(path):
             return run("ffmpeg", "-v", "error", "-i", str(path), "-vn", "-f", "s16le", "-").stdout
         assert audio_bytes(talking_out) == audio_bytes(muted_out), "dialogue clip audio was mixed twice"
+        (p / "script.lock").unlink()
         soft = p / "soft.wav"
         run("ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "sine=frequency=300:duration=7.5", "-af", "volume=3", str(soft))
         assert run_script("assemble_final.sh", "--out", p / "soft.mp4", "--blocks", 1,

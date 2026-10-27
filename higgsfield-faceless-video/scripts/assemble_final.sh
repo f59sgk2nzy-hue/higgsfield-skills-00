@@ -40,6 +40,7 @@ SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOCK=""
 if [[ -n "$SCRIPT" ]]; then
   LOCK="$(dirname "$SCRIPT")/script.lock"
+  [[ -f "$LOCK" ]] || { echo "ERROR: no script lock at $LOCK; validate the script before assembly." >&2; exit 1; }
 elif [[ -f script.lock ]]; then
   LOCK="script.lock"
 fi

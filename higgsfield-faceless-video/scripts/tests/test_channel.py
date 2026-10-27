@@ -45,6 +45,8 @@ def main():
         command = ['python3', str(root / 'validate_motion_script.py'), '--script', str(path), '--duration-seconds', '30']
         assert subprocess.run(command, capture_output=True).returncode == 0
         assert (path.parent / 'script.lock').is_file()
+        assert subprocess.run(['python3', str(root / 'validate_motion_script.py'), '--script', str(path),
+                               '--duration-seconds', '10', '--verify-lock'], capture_output=True).returncode != 0
         changed = json.loads(path.read_text())
         changed['blocks'][1]['vo_line'] += ' changed'
         path.write_text(json.dumps(changed))

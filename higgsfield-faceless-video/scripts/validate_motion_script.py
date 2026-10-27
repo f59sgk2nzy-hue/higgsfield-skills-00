@@ -774,7 +774,9 @@ def main() -> int:
                 )
             )
             return 1
-        matches = recorded.get("narration_sha256") == expected["narration_sha256"]
+        matches = all(recorded.get(key) == expected[key] for key in (
+            "narration_sha256", "block_count", "duration_seconds"
+        ))
         payload: dict[str, Any] = {
             "lock_ok": matches,
             "narration_sha256": expected["narration_sha256"],
@@ -782,10 +784,8 @@ def main() -> int:
         }
         if not matches:
             payload["errors"] = [
-                "the narration no longer matches the locked script: a line was edited "
-                "after SCRIPT LOCK. Words may only change by REWRITING the line and "
-                "re-running validate_motion_script.py, never by appending text to reach "
-                "a length. Re-validate, then regenerate the takes for the changed blocks."
+                "the narration, block count or duration no longer matches the locked "
+                "script. Revalidate the script and regenerate any affected takes."
             ]
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0 if matches else 1
