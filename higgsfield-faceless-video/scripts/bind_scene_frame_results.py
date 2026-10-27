@@ -28,6 +28,7 @@ def _result_url(value: Any) -> str | None:
         return None
     for candidate in (
         value.get("url"),
+        value.get("result_url"),
         value.get("preview"),
         value.get("output_url"),
     ):
@@ -57,15 +58,25 @@ def _records(payload: Any) -> list[dict[str, Any]]:
     return records
 
 
-def _frame_results(payloads: list[Any]) -> dict[str, dict[str, str]]:
+def _frame_results(payloads: list[Any]) -> dict[str, dict[str, Any]]:
     job_urls: dict[str, str] = {}
-    slots: dict[str, dict[str, str]] = {}
+    job_references: dict[str, list[str]] = {}
+    slots: dict[str, dict[str, Any]] = {}
     records = [record for payload in payloads for record in _records(payload)]
     for record in records:
         job_id = _job_id(record.get("job_id") or record.get("id"))
         url = _result_url(record)
-        if job_id is not None and url is not None:
+        if job_id is not None and url is not None and record.get("status") == "completed":
             job_urls[job_id] = url
+            params = record.get("params")
+            if isinstance(params, dict) and isinstance(params.get("medias"), list):
+                job_references[job_id] = [
+                    media["data"]["id"] for media in params["medias"]
+                    if isinstance(media, dict) and media.get("role") == "image"
+                    and isinstance(media.get("data"), dict)
+                    and media["data"].get("type") == "image_job"
+                    and isinstance(media["data"].get("id"), str)
+                ]
 
     for record in records:
         output_slot = record.get("output_slot")
@@ -76,8 +87,9 @@ def _frame_results(payloads: list[Any]) -> dict[str, dict[str, str]]:
         if job_id is None and isinstance(job_ids, list) and len(job_ids) == 1:
             job_id = _job_id(job_ids[0])
         url = _result_url(record) or (job_urls.get(job_id) if job_id else None)
-        if job_id is not None and url is not None:
-            slots[output_slot.strip()] = {"job_id": job_id, "url": url}
+        if job_id is not None and url is not None and job_urls.get(job_id) == url:
+            slots[output_slot.strip()] = {"job_id": job_id, "url": url,
+                                          "reference_job_ids": job_references.get(job_id, [])}
     return slots
 
 
@@ -113,6 +125,11 @@ def bind_scene_frame_results(
             if frame.get("reference_output_slot") != previous.get("output_slot"):
                 raise ValueError(
                     f"frame {index} reference_output_slot must point to frame {index - 1}"
+                )
+            if previous["frame_job_id"] not in result["reference_job_ids"]:
+                raise ValueError(
+                    f"frame {index} job receipt does not reference the previous image job; "
+                    "pass that job ID to generation and include the completed job receipt"
                 )
             frame["reference_frame_job_id"] = previous["frame_job_id"]
             frame["reference_frame_url"] = previous["frame_url"]

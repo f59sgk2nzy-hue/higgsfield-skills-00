@@ -23,11 +23,23 @@ def main():
     frames = plan["frames"]
     assert frames and all(f["duration"] <= 1.5 for f in frames)
     results = {"results": [{"output_slot": f["output_slot"], "job_id": f"id-{f['n']}",
-                            "url": f"https://example.test/{f['n']}.png"} for f in frames]}
+                            "result_url": f"https://example.test/{f['n']}.png", "status": "completed",
+                            "params": {"medias": [{"role": "image", "data": {"type": "image_job",
+                                       "id": f"id-{f['n']-1}"}}]}}
+                           for f in frames]}
     bound = binding.bind_scene_frame_results(plan, [results])
     for previous, current in zip(bound["frames"], bound["frames"][1:]):
         if current["image_mode"] == "variation":
             assert current["reference_frame_job_id"] == previous["frame_job_id"]
+    variation = next(i for i, f in enumerate(frames) if f["image_mode"] == "variation")
+    incorrect = {"results": [dict(r) for r in results["results"]]}
+    incorrect["results"][variation] = {**incorrect["results"][variation], "params": {"medias": []}}
+    try:
+        binding.bind_scene_frame_results(plan, [incorrect])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("unverified variation reference was accepted")
     try:
         binding.bind_scene_frame_results(plan, [{"results": results["results"][:-1]}])
     except ValueError:
