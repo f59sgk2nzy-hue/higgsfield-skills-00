@@ -4,7 +4,7 @@ Use this path when the user explicitly requests still scenes or a picture story.
 
 Write one continuous narration and a sequence of numbered beats in `story.json`: `{"beats":[{"n":1,"phrase":"..."},{"n":2,"phrase":"..."}]}`. Research factual topics and retain sources. Generate one continuous `seed_audio` take with the selected voice pair, with no speed adjustment. Measure it. If it differs from the requested duration by more than the larger of three seconds and ten percent, rewrite the text and retry at most twice; never change the requested duration. For long narration, join a few completed same-voice paragraph takes in order without changing their speed.
 
-Run the local transcript and build a frame timeline:
+Before generating scene images, finish the narration take, run the local transcript and build a frame timeline. A reusable style or character reference may be prepared earlier; scene frames must follow the completed timeline:
 
 ```bash
 python3 "$SKILL_DIR/scripts/audio_to_captions.py" narration.wav --script story.json \
